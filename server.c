@@ -1,6 +1,6 @@
 /*===========================================================================
     TXCProxy, TRANSAQ XML Connector Proxy server 
-    Copyright (C) 2010 Novikov Artem Gennadievich
+    Copyright (C) 2010, 2018 Novikov Artem Gennadievich
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #include "txcproxy.h"
 
 SOCKET s1, s3;
+HANDLE lib;
 _txcfree txcfree;
 
 #ifdef SPLIT
@@ -47,9 +48,9 @@ void server(void) {
    SOCKET      s2;
    SOCKADDR_IN sin;
 
-   HANDLE pin, lib, lock = 0;
+   HANDLE pin, /*lib,*/ lock = 0;
 
-   _txcsend txcsend;
+   _txcsend   txcsend;
    
    OPTIONS          op;
    WSAPROTOCOL_INFO wi;
@@ -63,21 +64,23 @@ void server(void) {
 
    if ((s1 = WSASocket(AF_INET, SOCK_STREAM, 0, &wi, 0, 0)) == INVALID_SOCKET) exit(EXIT_FAILURE);
    
-   if (!(lib = LoadLibrary(op.dll))) shandler(MSG500); // Невозможно загрузить конектор
+   if (!(lib = LoadLibrary(op.dll))) shandler(MSG500); // РќРµРІРѕР·РјРѕР¶РЅРѕ Р·Р°РіСЂСѓР·РёС‚СЊ РєРѕРЅРµРєС‚РѕСЂ
 
+   if (((_txcinit)GetProcAddress(lib, "Initialize"))(".", 1)) shandler(MSG500); 
+   
    ((_txcset)GetProcAddress(lib, "SetCallback"))(acceptor);
 	txcsend = (_txcsend)GetProcAddress(lib, "SendCommand");
 	txcfree = (_txcfree)GetProcAddress(lib, "FreeMemory");
  
-   sendmsg(s1, MSG100); // Приветствие
+   sendmsg(s1, MSG100); // РџСЂРёРІРµС‚СЃС‚РІРёРµ
 
    while (TRUE) {
       len = 0;
  
       while (TRUE) {  
-         if (len == MAX_BLEN) shandler(MSG410);  // Слишком большое сообщение
+         if (len == MAX_BLEN) shandler(MSG410);  // РЎР»РёС€РєРѕРј Р±РѕР»СЊС€РѕРµ СЃРѕРѕР±С‰РµРЅРёРµ
 
-         if ((len += recv(s1, buf + len, MAX_BLEN - len, 0)) == SOCKET_ERROR) exit(EXIT_FAILURE); // Ошибка сокета  
+         if ((len += recv(s1, buf + len, MAX_BLEN - len, 0)) == SOCKET_ERROR) exit(EXIT_FAILURE); // РћС€РёР±РєР° СЃРѕРєРµС‚Р°  
 
          if (len >= 2 && buf[len - 2] == '\r' && buf[len - 1] == '\n') {
             buf[len - 2] = '\0';
@@ -108,7 +111,7 @@ void server(void) {
       } else if (!strcmp("SEND", cmd)) {
          id = SEND;
       } else { 
-         sendmsg(s1, MSG400); // Неизвестная команда
+         sendmsg(s1, MSG400); // РќРµРёР·РІРµСЃС‚РЅР°СЏ РєРѕРјР°РЅРґР°
          continue;
       }
 
@@ -118,12 +121,12 @@ void server(void) {
          msg = lock ? MSG520 : MSG530;
       } else if ((id == CLOS || id == SEND) && !lock) {               // OPEN!
          msg = MSG521;
-      } else if (id >= USER && (tmp == (buf + len - 2) || (arg = skip(tmp + 1)) == NULL)) { // Отсутствуют аргументы 
+      } else if (id >= USER && (tmp == (buf + len - 2) || (arg = skip(tmp + 1)) == NULL)) { // РћС‚СЃСѓС‚СЃС‚РІСѓСЋС‚ Р°СЂРіСѓРјРµРЅС‚С‹ 
          msg = MSG401;       
       } else if (id == OPEN) {
-         SetCurrentDirectory(fname);   // Текущий каталог программы, (ANSI)
+         SetCurrentDirectory(fname);   // РўРµРєСѓС‰РёР№ РєР°С‚Р°Р»РѕРі РїСЂРѕРіСЂР°РјРјС‹, (ANSI)
          CreateDirectoryW(wdir, NULL); // ERROR_ALREADY_EXISTS
-         SetCurrentDirectoryW(wdir);   // Рабочий каталог пользователя
+         SetCurrentDirectoryW(wdir);   // Р Р°Р±РѕС‡РёР№ РєР°С‚Р°Р»РѕРі РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
 
          if ((lock = CreateFile("lock", GENERIC_READ, 0, NULL, CREATE_ALWAYS, 0, NULL)) == INVALID_HANDLE_VALUE) { 
             if (GetLastError() != ERROR_SHARING_VIOLATION) shandler(MSG510);
@@ -153,7 +156,7 @@ void server(void) {
 
          s2 = socket(AF_INET, SOCK_STREAM, 0);  
 
-         while (TRUE) { // Возможен выход за пределы портов 
+         while (TRUE) { // Р’РѕР·РјРѕР¶РµРЅ РІС‹С…РѕРґ Р·Р° РїСЂРµРґРµР»С‹ РїРѕСЂС‚РѕРІ 
             sin.sin_port = htons(++port); 
 
             if (!bind(s2, (PSOCKADDR) &sin, sizeof(sin))) {
@@ -183,7 +186,7 @@ void server(void) {
          while ((*tmp = tolower(*tmp)) && *tmp != '>') tmp++; 
 
          if (strstr(arg, "connect") || strstr(arg, "disconnect")) {
-            msg = MSG540; // Команда перехвачена
+            msg = MSG540; // РљРѕРјР°РЅРґР° РїРµСЂРµС…РІР°С‡РµРЅР°
          } else { 
          _SEND:
          #ifdef FDUMP
@@ -196,7 +199,7 @@ void server(void) {
 
             if (id != CLOS && strcmp(cst, "<result success=\"true\"/>")) {
                tmp = cst + strlen("<result success=\"false\"><message>"); 
-               *(strchr(tmp, '<') - 1) = '\0'; // До точки
+               *(strchr(tmp, '<') - 1) = '\0'; // Р”Рѕ С‚РѕС‡РєРё
                sprintf(buf, MSG541, tmp);
                msg = buf;
              }
@@ -210,6 +213,7 @@ bool WINAPI shandler(u_long event) {
    char* msg;
    msg = event ? (char*) event : MSG101;
    sendmsg(s1, msg); 
+   ((_txcuninit)GetProcAddress(lib, "UnInitialize"))();
    exit(EXIT_SUCCESS); 
 }
 

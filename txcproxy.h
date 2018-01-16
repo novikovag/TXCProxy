@@ -1,6 +1,6 @@
 /*===========================================================================
     TXCProxy, TRANSAQ XML Connector Proxy server 
-    Copyright (C) 2010 Novikov Artem Gennadievich
+    Copyright (C) 2010, 2018 Novikov Artem Gennadievich
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include <winbase.h>
 #include <tlhelp32.h>
 
-#define VERSION "v1.0" 
+#define VERSION "v1.1" 
 
 #define MSG100 "100 TXCProxy " VERSION "\r\n"
 #define MSG101 "101 BYE\r\n"
@@ -104,6 +104,10 @@ typedef bool (WINAPI* _txcset)(callback);
 typedef char* (WINAPI* _txcsend)(char*); 
 // bool FreeMemory(BYTE* pData);
 typedef bool (WINAPI* _txcfree)(char*);
+// BYTE* Initialize(const BYTE* logPath, int logLevel);
+typedef char* (WINAPI* _txcinit)(char*, int); 
+// BYTE* UnInitialize();
+typedef char* (WINAPI* _txcuninit)(); 
 
 bool CALLBACK acceptor(char*); 
 

@@ -1,6 +1,6 @@
 /*===========================================================================
     TXCProxy, TRANSAQ XML Connector Proxy server 
-    Copyright (C) 2010 Novikov Artem Gennadievich
+    Copyright (C) 2010, 2018 Novikov Artem Gennadievich
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,10 +27,10 @@ void master(OPTIONS* op) {
    SOCKET s1, s2;
    SOCKADDR_IN sin;
 
-   SECURITY_ATTRIBUTES  sa;
-   STARTUPINFO          si;
-   PROCESS_INFORMATION  pi;
-   WSAPROTOCOL_INFO     wi;
+   SECURITY_ATTRIBUTES sa;
+   STARTUPINFO         si;
+   PROCESS_INFORMATION pi;
+   WSAPROTOCOL_INFO    wi;
   
    HANDLE pin, pout; 
 
@@ -106,7 +106,7 @@ bool WINAPI mhandler(u_long event) {
 
    while ((pe.dwSize = sizeof(pe)) && Process32Next(snapshot, &pe)) 
       if (!strcmp(pe.szExeFile, name) && GetCurrentProcessId() != pe.th32ProcessID) 
-         GenerateConsoleCtrlEvent(event, pe.th32ProcessID);  // фурычит тока при dwCreationFlags == 0
+         GenerateConsoleCtrlEvent(event, pe.th32ProcessID);  // С„СѓСЂС‹С‡РёС‚ С‚РѕРєР° РїСЂРё dwCreationFlags == 0
 
    printt(); printf(" EXIT");
    exit(EXIT_SUCCESS); 
