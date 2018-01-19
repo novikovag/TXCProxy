@@ -72,7 +72,7 @@
 
 #define PORT 4444
 
-enum { OPEN, CLOS, DATA, STAT, QUIT, USER, PASS, SEND } id;
+enum {OPEN, CLOS, DATA, STAT, QUIT, USER, PASS, SEND} id;
 
 struct options {
    u_long  addr;
@@ -109,6 +109,6 @@ typedef char* (WINAPI* _txcinit)(char*, int);
 // BYTE* UnInitialize();
 typedef char* (WINAPI* _txcuninit)(); 
 
-bool CALLBACK acceptor(char*); 
+bool CALLBACK acceptor(BYTE*); 
 
 #endif
