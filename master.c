@@ -21,7 +21,7 @@
 extern char* fname;
 
 void master(OPTIONS* op) {
-   char cmd[MAX_PATH];
+   char cmd[MAX_PATH + 1];
    int  len;
 
    SOCKET s1, s2;
@@ -60,7 +60,9 @@ void master(OPTIONS* op) {
    si.hStdInput = pin;
    si.dwFlags   = STARTF_USESTDHANDLES;
 
-   sprintf(cmd, "%s fork()", fname);
+   len = GetModuleFileName(NULL, cmd, MAX_PATH + 1);
+   
+   sprintf(cmd + len, " %s", "fork()");
 
    while (TRUE) {
       printt(); printf(" READY\n");
@@ -92,22 +94,17 @@ void printt() {
           ltm->tm_hour, ltm->tm_min,  ltm->tm_sec);
 }
 
-bool WINAPI mhandler(u_long event) {
-   char*  name; 
+BOOL WINAPI mhandler(DWORD event) {
    HANDLE snapshot, child;
    PROCESSENTRY32 pe = {sizeof(pe)};
-#ifdef SPLIT 
-   name = fname;
-#else
-   name = strrchr(fname, '\\') + 1;
-#endif
-   snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
+
+   snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, 0);
    Process32First(snapshot, &pe); // [System Process]
-
+  
    while ((pe.dwSize = sizeof(pe)) && Process32Next(snapshot, &pe)) 
-      if (!strcmp(pe.szExeFile, name) && GetCurrentProcessId() != pe.th32ProcessID) 
+      if (!strcmp(pe.szExeFile, fname) && GetCurrentProcessId() != pe.th32ProcessID) 
          GenerateConsoleCtrlEvent(event, pe.th32ProcessID);  // фурычит тока при dwCreationFlags == 0
-
+    
    printt(); printf(" EXIT");
    exit(EXIT_SUCCESS); 
 }

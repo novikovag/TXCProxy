@@ -87,12 +87,12 @@ void getopt(int, char**, OPTIONS*);
 
 void master(OPTIONS*);
 void printt(void);
-bool WINAPI mhandler(u_long);
+BOOL WINAPI mhandler(DWORD);
 
 void server(void);
 void getcmd(void);
 char* skip(char*);
-bool WINAPI shandler(u_long);
+BOOL WINAPI shandler(DWORD);
 
 void fdump(char*, char*, int); 
 

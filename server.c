@@ -19,7 +19,7 @@
 #include "txcproxy.h"
 
 SOCKET s1, s3;
-HANDLE lib;
+HANDLE lib = 0;
 _txcfree txcfree;
 
 #ifdef SPLIT
@@ -48,8 +48,8 @@ void server(void) {
    SOCKET      s2;
    SOCKADDR_IN sin;
 
-   HANDLE pin, /*lib,*/ lock = 0;
-
+   HANDLE pin, lock = 0;
+   
    _txcsend   txcsend;
    
    OPTIONS          op;
@@ -209,11 +209,13 @@ void server(void) {
     } // while
 }
 
-bool WINAPI shandler(u_long event) {
+BOOL WINAPI shandler(DWORD event) {
    char* msg;
    msg = event ? (char*) event : MSG101;
    sendmsg(s1, msg); 
-   ((_txcuninit)GetProcAddress(lib, "UnInitialize"))();
+   
+   if (lib) ((_txcuninit)GetProcAddress(lib, "UnInitialize"))();
+
    exit(EXIT_SUCCESS); 
 }
 

@@ -91,7 +91,7 @@ _USAGE:
 
    tmp += sprintf(tmp, "<host>%s</host>"
                        "<port>%s</port>" 
-                       "<logsdir>.\</logsdir>"
+                       "<logsdir>.\\</logsdir>"
                        "<loglevel>%s</loglevel>",
                        tq_addr, tq_port, ll2);
    if (px_addr) {
