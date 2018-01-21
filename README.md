@@ -4,6 +4,14 @@ TXCProxy разрабатывался с использованием компи
 сборка осуществляется простым запуском команды wmake в каталоге с распакованными 
 исходными текстами, в результате должен появиться исполняемый файл txcproxy.exe
 
+### Visual C++
+
+    cl *.c ws2_32.lib /link /out:txcproxy.exe
+
+### MinGW   
+    
+    gcc -o txcproxy.exe *.c -lws2_32
+    
 # Установка
 Установка заключается в создании произвольного каталога и копирование в него файла 
 txcproxy.exe и библиотеки [txmlconnector.dll](http://www.finam.ru/howtotrade/tconnector/default.asp)
