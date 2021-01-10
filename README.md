@@ -26,6 +26,7 @@ Such wrapper [txcproxy](https://github.com/vagabondan/TXCProxy) was originally w
 After starting container [txcproxy](https://github.com/vagabondan/TXCProxy) will listen on port 4444 by default. It uses successive numbers of ports to create and keep permanent connections to clients: one port by one new connection. So to work correctly one should expose range of ports from container, i.e. 4444-4449 or even wider in accordance with the planning numbers of simultaneous connections to [txcproxy](https://github.com/vagabondan/TXCProxy).
 <br>
 The details of communication with txcproxy are described in its [documentation in Russian](https://raw.githubusercontent.com/vagabondan/txcproxy/master/docs/txcproxy.pdf).
+One may find useful [examples here](https://github.com/vagabondan/TXCProxy/tree/master/examples) on Perl.
 
 ## To build, install and run TXCProxy outside container
 
