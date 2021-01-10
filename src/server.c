@@ -66,7 +66,9 @@ void server(void) {
    
    if (!(lib = LoadLibrary(op.dll))) shandler(MSG500); // Невозможно загрузить конектор
 
-   if (((_txcinit)GetProcAddress(lib, "Initialize"))(".", 1)) shandler(MSG500); 
+
+
+   if (((_txcinit)GetProcAddress(lib, "Initialize"))(".\\logs\\\0", 2)) shandler(MSG500); 
    
    ((_txcset)GetProcAddress(lib, "SetCallback"))(acceptor);
 	txcsend = (_txcsend)GetProcAddress(lib, "SendCommand");
@@ -125,10 +127,13 @@ void server(void) {
          msg = MSG401;       
       } else if (id == OPEN) {
          SetCurrentDirectory(fname);   // Текущий каталог программы, (ANSI)
+         CreateDirectory("locks", NULL); // ERROR_ALREADY_EXISTS, (ANSI) - user dirs are inside locks dir
+         SetCurrentDirectory("locks");   // go to locks dir
          CreateDirectoryW(wdir, NULL); // ERROR_ALREADY_EXISTS
          SetCurrentDirectoryW(wdir);   // Рабочий каталог пользователя
-
-         if ((lock = CreateFile("lock", GENERIC_READ, 0, NULL, CREATE_ALWAYS, 0, NULL)) == INVALID_HANDLE_VALUE) { 
+         lock = CreateFile("lock", GENERIC_READ, 0, NULL, CREATE_ALWAYS, 0, NULL); // create user lock file
+         SetCurrentDirectory("..\\..\\");   // go back to workdir
+         if ( lock == INVALID_HANDLE_VALUE) { 
             if (GetLastError() != ERROR_SHARING_VIOLATION) shandler(MSG510);
 
             lock = 0; 
