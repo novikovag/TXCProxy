@@ -1,0 +1,7 @@
+docs/
+examples/
+out/build/
+src/
+.gitignore
+CMake*
+*.md
