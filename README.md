@@ -72,3 +72,7 @@ TXCProxy принимает следующие параметры (tq_addr и tq
     | px_pass  | пароль для прокси                    | - 
     | dll      | путь к библиотеке коннектора         |.\txmlconnector.dll 
     | ll2      | уровень детализации логов коннектора | 0 
+
+
+# License
+The content of this project is licensed under the GNU General Public License v3.0.
