@@ -1,30 +1,21 @@
-FROM debian:stretch-slim AS wine
+FROM debian:stretch-slim
 
 # https://wiki.winehq.org/Debian
+WORKDIR /tmp
 
-RUN set -eux; \
-        apt-get update; \
-        apt-get install -y --no-install-recommends apt-transport-https ca-certificates; \
-        savedAptMark="$(apt-mark showmanual)"; \
-        apt-get install -y --no-install-recommends gnupg dirmngr; \
-        rm -rf /var/lib/apt/lists/*; \
-        \
-        export GNUPGHOME="$(mktemp -d)"; \
-        gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys D43F640145369C51D786DDEA76F1A20FF987672F; \
-        gpg --batch --export --armor D43F640145369C51D786DDEA76F1A20FF987672F > /etc/apt/trusted.gpg.d/winehq.gpg.asc; \
-        gpgconf --kill all; \
-        rm -rf "$GNUPGHOME"; \
-        apt-key list | grep 'WineHQ'; \
-        \
-        apt-mark auto '.*' > /dev/null; \
-        apt-mark manual $savedAptMark > /dev/null; \
-        apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
-        \
-        dpkg --add-architecture i386; \
-        suite="$(awk '$1 == "deb" { print $3; exit }' /etc/apt/sources.list)"; \
-        echo "deb https://dl.winehq.org/wine-builds/debian $suite main" > /etc/apt/sources.list.d/winehq.list
+RUN apt update && apt install -y wget unzip gnupg apt-transport-https ca-certificates
 
-# https://dl.winehq.org/wine-builds/debian/dists/buster/main/binary-amd64/?C=N;O=D
+RUN dpkg --add-architecture i386 && \
+suite="$(awk '$1 == "deb" { print $3; exit }' /etc/apt/sources.list)" && \
+echo "deb https://dl.winehq.org/wine-builds/debian $suite main" > /etc/apt/sources.list.d/winehq.list && \
+wget -nc https://dl.winehq.org/wine-builds/winehq.key && apt-key add winehq.key
+
+# RUN apt update
+
+# RUN apt install --install-recommends winehq-stable && rm -rf /var/lib/apt/lists/*
+
+
+# https://dl.winehq.org/wine-builds/debian/dists/stretch/main/binary-amd64/?C=N;O=D
 # https://www.winehq.org/news/
 ENV WINE_VERSION 5.0.2
 
@@ -41,12 +32,8 @@ RUN set -eux; \
         rm -rf /var/lib/apt/lists/*
 
 
-FROM wine AS transaq
-
 WORKDIR /app
 ENV WINEARCH=win32
-
-RUN apt update && apt install -y wget unzip
 
 # Download transaq connector library
 ARG TRANSAQ_CONNECTOR=616TXmlConnector.2.21.2.zip
