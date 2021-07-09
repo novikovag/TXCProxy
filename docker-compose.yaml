@@ -1,0 +1,24 @@
+version: "3.3"
+
+services:
+  txcproxy:
+    build: .
+    image: vagabondan/transaq
+    restart: unless-stopped    
+    environment:
+      # https://wiki.winehq.org/Debug_Channels
+      - "WINEDEBUG=-all"
+    volumes:
+        # set date and timezone equals to host
+      - /etc/localtime:/etc/localtime:ro
+        # logs
+      - "./logs:/app/logs"
+    ports:
+      - "4444:4444"
+      - "4445:4445"
+      - "4446:4446"
+    networks:
+      - txcproxy
+
+networks:
+  txcproxy:

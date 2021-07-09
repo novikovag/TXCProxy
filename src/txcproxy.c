@@ -17,6 +17,7 @@
 ===========================================================================*/
 
 #include "TXCProxy.h"
+#pragma comment(lib, "ws2_32.lib")
 
 char* fname;
 
@@ -51,7 +52,7 @@ void getopt(int argc, char** argv, OPTIONS* op) {
        * tq_addr = NULL,
        * tq_port = NULL,
        * dll     = "txmlconnector.dll", 
-       * ll2     = "0",
+       * ll2     = "2",
        * tmp     = op->str; 
    int i = 0;
 
@@ -91,7 +92,7 @@ _USAGE:
 
    tmp += sprintf(tmp, "<host>%s</host>"
                        "<port>%s</port>" 
-                       "<logsdir>.\\</logsdir>"
+                       "<logsdir>.\\logs\\</logsdir>"
                        "<loglevel>%s</loglevel>",
                        tq_addr, tq_port, ll2);
    if (px_addr) {
